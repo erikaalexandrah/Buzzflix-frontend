@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { getFavoriteMovies } from '@/config/api';  // Importa la función
+import { getFavoriteMovies } from '@/config/api';  
 import { Movie } from '@/config/intefaces';
 import Card from '@/components/card/container';
 import Navbar from '@/components/navbar';

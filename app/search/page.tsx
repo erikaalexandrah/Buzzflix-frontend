@@ -1,15 +1,15 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/router';
 import Card from '@/components/card/container';
 import Footer from '@/components/footer/footer';
 import Navbar from '@/components/navbar';
 import { Movie } from '@/config/intefaces';
-import { searchMovies } from '@/config/api';  // Importa la función
+import { searchMovies } from '@/config/api';
 
 const Search: React.FC = () => {
-  const searchParams = useSearchParams();
-  const query = searchParams.get('query') || '';
+  const router = useRouter();
+  const query = router.query.query as string || '';
   const [movies, setMovies] = useState<Movie[]>([]);
   const [actorMovies, setActorMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -19,7 +19,7 @@ const Search: React.FC = () => {
     const fetchMovies = async () => {
       try {
         setLoading(true);
-        const { movies, actorMovies } = await searchMovies(query);  // Usa la función
+        const { movies, actorMovies } = await searchMovies(query);
         setMovies(movies);
         setActorMovies(actorMovies);
       } catch (error) {
@@ -67,19 +67,19 @@ const Search: React.FC = () => {
         <h1 className="text-white text-xl sm:text-2xl font-semibold mb-2">
           Search Results for "{query}"
         </h1>
-        
+
         {loading && (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-white"></div>
           </div>
         )}
-        
+
         {error && (
           <div className="text-red-500 text-center text-xl p-4 bg-red-100 rounded-lg">
             {error}
           </div>
         )}
-        
+
         {!loading && !error && (
           <>
             {movies.length > 0 ? (
@@ -89,7 +89,7 @@ const Search: React.FC = () => {
                 No matches found
               </div>
             )}
-            
+
             {actorMovies.length > 0 && renderMovieGrid(actorMovies, "You might also be interested in")}
           </>
         )}
