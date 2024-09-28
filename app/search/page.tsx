@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
 import Card from '@/components/card/container';
 import Footer from '@/components/footer/footer';
 import Navbar from '@/components/navbar';
@@ -8,15 +7,23 @@ import { Movie } from '@/config/intefaces';
 import { searchMovies } from '@/config/api';
 
 const Search: React.FC = () => {
-  const router = useRouter();
-  const query = router.query.query as string || '';
+  const [query, setQuery] = useState<string>('');
   const [movies, setMovies] = useState<Movie[]>([]);
   const [actorMovies, setActorMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Extrae el valor del parámetro `query` directamente desde la URL
+    const params = new URLSearchParams(window.location.search);
+    const searchQuery = params.get('query') || '';
+    setQuery(searchQuery);
+  }, []);
+
+  useEffect(() => {
     const fetchMovies = async () => {
+      if (!query) return;
+
       try {
         setLoading(true);
         const { movies, actorMovies } = await searchMovies(query);
@@ -30,9 +37,7 @@ const Search: React.FC = () => {
       }
     };
 
-    if (query) {
-      fetchMovies();
-    }
+    fetchMovies();
   }, [query]);
 
   const renderMovieGrid = (movieList: Movie[], title: string) => (
