@@ -10,7 +10,7 @@ const Footer = () => {
           "Porque todos amamos los trailers... y evitar spoilers!"
         </p>
         <p className="text-white">
-          Elaborado por <strong>Erika Hernández</strong>, <strong>Rolando Sorrentino</strong> y <strong>Kevin Hernández</strong>.
+          Elaborado por <strong>Erika Hernández</strong> y <strong>Kevin Hernández</strong>.
           <br />
           <span className="text-gray-300">Copyright © {new Date().getFullYear()} - Todos los derechos reservados, excepto los que no lo están... 😜</span>
         </p>
