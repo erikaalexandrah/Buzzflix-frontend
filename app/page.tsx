@@ -15,6 +15,7 @@ import { genres } from "@/config/data";
 
 // Acentos que rotan en las cabeceras de los skeletons para dar ritmo visual.
 const SKELETON_ACCENTS = ["bg-grape", "bg-coral", "bg-electric", "bg-ink", "bg-bubble"];
+const GENRE_BATCH_SIZE = 3;
 
 type GenreStatus = "loading" | "loaded" | "error";
 
@@ -58,19 +59,42 @@ export default function Home() {
         }, {} as Record<string, GenreStatus>)
       );
 
-      // Each response updates its own section; one slow genre no longer blocks the rest.
-      genres.forEach(async (genre) => {
-        try {
-          const movies = await getMoviesByGenre(genre, controller.signal);
-          setMoviesByGenre((current) => ({ ...current, [genre]: movies }));
-          setGenreStatuses((current) => ({ ...current, [genre]: "loaded" }));
-        } catch (error) {
-          if (!controller.signal.aborted) {
-            console.error(`Error fetching movies by genre: ${genre}`, error);
-            setGenreStatuses((current) => ({ ...current, [genre]: "error" }));
-          }
-        }
-      });
+      // Fetch small batches in visual order. Requests for sections near the top
+      // are sent first, and a batch is revealed together so a lower carousel
+      // cannot win the race and appear before the ones above it.
+      for (let index = 0; index < genres.length; index += GENRE_BATCH_SIZE) {
+        if (controller.signal.aborted) return;
+
+        const batch = genres.slice(index, index + GENRE_BATCH_SIZE);
+        const results = await Promise.allSettled(
+          batch.map((genre) => getMoviesByGenre(genre, controller.signal))
+        );
+
+        if (controller.signal.aborted) return;
+
+        setMoviesByGenre((current) => {
+          const next = { ...current };
+          results.forEach((result, resultIndex) => {
+            if (result.status === "fulfilled") {
+              next[batch[resultIndex]] = result.value;
+            }
+          });
+          return next;
+        });
+
+        setGenreStatuses((current) => {
+          const next = { ...current };
+          results.forEach((result, resultIndex) => {
+            const genre = batch[resultIndex];
+            next[genre] = result.status === "fulfilled" ? "loaded" : "error";
+
+            if (result.status === "rejected") {
+              console.error(`Error fetching movies by genre: ${genre}`, result.reason);
+            }
+          });
+          return next;
+        });
+      }
     };
 
     loadLandingCarousels();
