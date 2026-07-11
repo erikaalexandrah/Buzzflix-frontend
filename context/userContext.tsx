@@ -5,6 +5,7 @@ interface User {
     username: string;
     userCountry: string;
     userFavoriteGenre: string;
+    role?: string;
   }
   
   interface UserContextType {
@@ -12,45 +13,62 @@ interface User {
     setCurrentUser: React.Dispatch<React.SetStateAction<User | null>>;
     isUserLoading: boolean;
     setIsUserLoading: React.Dispatch<React.SetStateAction<boolean>>;
+    isAdmin: boolean;
     handleLogin: (token: string, userData: User) => void;
     handleLogout: () => void;
   }
-  
+
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
 
+/** Decodifica el payload de un JWT sin verificar la firma (solo lectura de claims). */
+function getRoleFromToken(token: string | null): string | null {
+  if (!token) return null;
+  try {
+    const payload = token.split(".")[1];
+    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
+    const decoded = JSON.parse(atob(normalized));
+    return typeof decoded?.role === "string" ? decoded.role : null;
+  } catch {
+    return null;
+  }
+}
+
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isUserLoading, setIsUserLoading] = useState<boolean>(true);
+  const [role, setRole] = useState<string | null>(null);
 
   // Function to set JWT and user data
   const handleLogin = (token: string, userData: User) => {
     localStorage.setItem("jwt", token); // Save JWT to localStorage
     setCurrentUser(userData); // Set user data in state
+    setRole(userData.role ?? getRoleFromToken(token)); // Derive admin role
   };
 
   // Function to log out
   const handleLogout = () => {
-    console.log('Logging out...');
     localStorage.removeItem("jwt"); // Remove JWT from localStorage
     setCurrentUser(null); // Clear user data
-    console.log('JWT after logout:', localStorage.getItem("jwt")); // Should be null
+    setRole(null);
   };
-  
+
 
   useEffect(() => {
     // Check if JWT exists in localStorage when the app loads
     const token = localStorage.getItem("jwt");
     if (token) {
       setIsUserLoading(true);
+      setRole(getRoleFromToken(token)); // Read role straight from the JWT
       axios
         .get("http://localhost:3000/auth/me", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
           setCurrentUser(response.data);
+          if (response.data?.role) setRole(response.data.role);
         })
         .catch(() => {
           handleLogout(); // Clear the token if the request fails
@@ -70,6 +88,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCurrentUser,
         isUserLoading,
         setIsUserLoading,
+        isAdmin: role === "admin",
         handleLogin,
         handleLogout,
       }}

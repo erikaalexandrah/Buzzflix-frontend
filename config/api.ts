@@ -65,6 +65,53 @@ export const toggleFavorite = async (movieId: string, isInList: boolean, token: 
     }
   };
 
+export interface BackfillResult {
+  mode: string;
+  startPage: number;
+  nextPage: number;
+  importedMovies: number;
+  skippedMovies: number;
+  processedPages: number;
+}
+
+export class BackfillError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'BackfillError';
+    this.status = status;
+  }
+}
+
+/**
+ * Adelanta el cron de importación trayendo `pages` páginas de TMDB de golpe.
+ * Solo funciona para usuarios con role "admin".
+ * Lanza BackfillError con el status (401/403/…) en caso de fallo.
+ */
+export const backfillMovies = async (token: string | null, pages = 10): Promise<BackfillResult> => {
+  if (!token) throw new BackfillError(401, 'No authentication token provided');
+
+  const safePages = Math.min(Math.max(1, Math.trunc(pages)), 50);
+
+  const response = await fetch(`${API_URL}/import/admin/movies/backfill?pages=${safePages}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (response.status === 201) {
+    return response.json() as Promise<BackfillResult>;
+  }
+
+  throw new BackfillError(
+    response.status,
+    response.status === 403
+      ? 'El usuario no es administrador'
+      : response.status === 401
+      ? 'Token inválido o ausente'
+      : `Error al importar (${response.status})`
+  );
+};
+
 export const getLatestMovies = async (): Promise<Movie[]> => {
   try {
     const response = await axios.get<Movie[]>(`${API_URL}/movie/latest`);
