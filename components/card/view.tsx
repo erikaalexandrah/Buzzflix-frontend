@@ -72,23 +72,23 @@ const CardView: React.FC<CardViewProps> = ({
   return (
     <>
       <div
-        className="relative cursor-pointer overflow-hidden rounded-lg shadow-lg h-48 w-32 md:h-64 md:w-48 z-20"
+        className="group relative z-20 aspect-[2/3] w-full cursor-pointer overflow-hidden rounded-md shadow-md ring-1 ring-white/5 transition-transform duration-300 hover:z-30 hover:scale-[1.04] hover:shadow-xl"
         onClick={openModal}
       >
         <img
           src={cover}
           alt={title}
-          className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 opacity-0 transition-opacity duration-300 hover:opacity-100">
-          <h3 className="text-white text-sm md:text-lg font-semibold text-center">{title}</h3>
+        <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/80 via-black/10 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <h3 className="text-center text-sm font-semibold text-white md:text-base">{title}</h3>
         </div>
       </div>
 
       {isModalOpen && (
         <Modal onClose={closeModal}>
           <div className="relative">
-            <div className="relative w-full h-0 pb-[40%] max-h-[50vh] sm:pb-[56.25%] sm:max-h-[70vh] ">
+            <div className="relative aspect-video w-full overflow-hidden bg-black">
               {React.createElement('lite-youtube', {
                 videoid: videoId,
                 style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
@@ -99,30 +99,32 @@ const CardView: React.FC<CardViewProps> = ({
                 playlistCoverId: 'default',
                 ref: youtubeRef,
               })}
-              <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-32 bg-gradient-to-t from-[#181818] to-transparent sm:block hidden"></div>
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#181818] to-transparent"></div>
             </div>
-            <div className="p-4 sm:p-12 bg-[#181818] mt-4 sm:mt-8">
-              <h2 className="text-2xl sm:text-4xl font-bold text-white mb-4">{title}</h2>
-              <div className="flex flex-wrap items-center space-x-2 sm:space-x-4 mb-4">
-                <span className="text-green-500 font-bold">98% Match</span>
-                <span className="border border-gray-600 text-white px-2 py-1 text-xs sm:text-sm">{classification}</span>
-                <span className="text-white">{releaseDate.split('-')[0]}</span>
+            <div className="p-5 sm:p-8">
+              <h2 className="mb-3 text-2xl sm:text-3xl font-bold text-white">{title}</h2>
+              <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+                <span className="font-semibold text-green-500">98% Match</span>
+                <span className="border border-gray-600 px-2 py-0.5 text-xs text-white/90">{classification}</span>
+                <span className="text-white/70">{releaseDate.split('-')[0]}</span>
               </div>
-              <p className="text-white text-sm sm:text-base mb-4">{description}</p>
-              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mb-6">
-                <button className="bg-white text-black px-6 sm:px-8 py-2 rounded" onClick={handlePlayVideo}>Play</button>
+              <p className="mb-5 text-sm sm:text-base leading-relaxed text-white/85">{description}</p>
+              <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
+                <button className="flex items-center justify-center gap-2 rounded-md bg-white px-8 py-2 font-semibold text-black transition hover:bg-white/85" onClick={handlePlayVideo}>
+                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                  Play
+                </button>
                 {isAuthenticated && (
                   <button
                     onClick={handleToggleFavorite}
-                    className="bg-gray-500 text-white px-6 sm:px-8 py-2 rounded"
+                    className="rounded-md bg-white/15 px-8 py-2 font-semibold text-white transition hover:bg-white/25 disabled:opacity-60"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Loading...' : (isInList ? 'Remove from My List' : 'Add to My List')}
                   </button>
                 )}
               </div>
-              <div className="text-gray-400 text-xs sm:text-sm space-y-2">
-                <p>MovieID: {movieId} </p>
+              <div className="space-y-1.5 border-t border-white/10 pt-4 text-xs sm:text-sm text-gray-400">
                 <p><span className="text-gray-200">Cast:</span> {actors.join(', ')}</p>
                 <p><span className="text-gray-200">Genres:</span> {genre}</p>
                 <p><span className="text-gray-200">This title is:</span> {subtitles}</p>

@@ -9,7 +9,7 @@ const MovieSection: React.FC<MovieSectionProps> = ({ movie }) => {
   const youtubeEmbedUrl = movie.trailerUrl.replace("watch?v=", "embed/");
 
   return (
-    <div className="relative w-full h-[40vh] md:h-[85vh] overflow-hidden">
+    <div className="relative w-full h-[56vh] md:h-[80vh] overflow-hidden">
       {/* Video de fondo */}
       <div className="absolute inset-0 top-[-50px] overflow-hidden">
         <iframe
@@ -21,26 +21,29 @@ const MovieSection: React.FC<MovieSectionProps> = ({ movie }) => {
         ></iframe>
       </div>
 
-      {/* Degradado en la parte inferior */}
-      <div className="absolute inset-0 flex flex-col justify-end">
-        <div className="w-full h-32 bg-gradient-to-t from-black to-transparent"></div>
-      </div>
-
-      {/* Overlay con un fondo negro semitransparente */}
-      <div className="absolute inset-0 bg-black bg-opacity-50"></div>
+      {/* Degradado inferior que funde con el fondo de la página */}
+      <div className="absolute inset-0 bg-gradient-to-t from-[#141414] via-[#141414]/40 to-transparent"></div>
+      {/* Degradado lateral para legibilidad del texto */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/20 to-transparent"></div>
 
       {/* Contenido de la película */}
-      <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end p-4 sm:p-6 md:p-10 text-white">
-        <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold">{movie.title}</h1>
-        <p className="mt-2 sm:mt-4 text-xs sm:text-sm md:text-lg max-w-full sm:max-w-[60%] md:max-w-[40%] line-clamp-2 sm:line-clamp-none">{movie.description}</p>
-        <div className="mt-3 sm:mt-6 flex flex-row items-center space-x-2 sm:space-x-4">
-          <button className="flex-1 sm:flex-none bg-white text-black font-bold py-1.5 sm:py-2 px-4 sm:px-6 rounded text-xs sm:text-base">Reproducir</button>
-          <button className="flex-1 sm:flex-none bg-gray-700 bg-opacity-70 text-white font-bold py-1.5 sm:py-2 px-4 sm:px-6 rounded text-xs sm:text-base">Más información</button>
+      <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end px-4 pb-10 sm:px-8 sm:pb-14 md:px-14 md:pb-20 text-white">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold tracking-tight max-w-3xl">{movie.title}</h1>
+        <p className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-white/85 max-w-full sm:max-w-[60%] md:max-w-[42%] leading-relaxed line-clamp-3">{movie.description}</p>
+        <div className="mt-5 sm:mt-6 flex flex-row items-center gap-3">
+          <button className="flex items-center gap-2 bg-white text-black font-semibold py-2 px-6 sm:px-8 rounded-md text-sm sm:text-base transition hover:bg-white/85">
+            <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+            Reproducir
+          </button>
+          <button className="flex items-center gap-2 bg-white/15 backdrop-blur-sm text-white font-semibold py-2 px-6 sm:px-8 rounded-md text-sm sm:text-base transition hover:bg-white/25">
+            Más información
+          </button>
         </div>
-        <div className="mt-3 sm:mt-4 flex flex-wrap items-center text-xs sm:text-sm">
-          <span className="bg-yellow-500 font-bold py-0.5 px-1.5 rounded text-xs sm:text-sm mr-2 mb-1 sm:mb-0">{`Top ${movie.rating}`}</span>
-          <span className="mr-2 mb-1 sm:mb-0">{movie.genre}</span>
-          <span className="mb-1 sm:mb-0">{`N.º ${movie.classification} en TV hoy`}</span>
+        <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs sm:text-sm text-white/80">
+          <span className="rounded bg-yellow-500 px-2 py-0.5 font-semibold text-black">{`Top ${movie.rating}`}</span>
+          <span>{movie.genre}</span>
+          <span className="text-white/50">•</span>
+          <span>{`N.º ${movie.classification} en TV hoy`}</span>
         </div>
       </div>
     </div>

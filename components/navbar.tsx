@@ -1,151 +1,235 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import buzzflix from '../public/buzzflix.png';
 import buzzAvatar from '../public/buzz.png';
 import { useUserData } from '../context/userContext';
 
+const NAV_LINKS = [
+  { label: 'Home', href: '/' },
+  { label: 'Movies', href: '#' },
+  { label: 'Popular', href: '#' },
+];
+
 const Navbar = () => {
-  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
-  const [isNavMenuOpen, setIsNavMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const searchRef = useRef<HTMLInputElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
   const { currentUser, isUserLoading, handleLogout } = useUserData();
 
-  const toggleProfileMenu = () => {
-    setIsProfileMenuOpen(!isProfileMenuOpen);
-  };
+  // Fondo sólido al hacer scroll (efecto Netflix)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  const toggleNavMenu = () => {
-    setIsNavMenuOpen(!isNavMenuOpen);
-  };
+  // Focus al abrir el buscador
+  useEffect(() => {
+    if (isSearchOpen) searchRef.current?.focus();
+  }, [isSearchOpen]);
 
-  const toggleSearch = () => {
-    setIsSearchOpen(!isSearchOpen);
-  };
+  // Cerrar menú de perfil al hacer click fuera
+  useEffect(() => {
+    const onClickOutside = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onClickOutside);
+    return () => document.removeEventListener('mousedown', onClickOutside);
+  }, []);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
-
-  const handleSearchSubmit = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const submitSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && searchTerm.trim()) {
       window.location.href = `/search?query=${encodeURIComponent(searchTerm)}`;
+    }
+    if (e.key === 'Escape') {
+      setIsSearchOpen(false);
+      setSearchTerm('');
     }
   };
 
-  if (isUserLoading) {
-    return <div className="navbar bg-black text-white">Loading...</div>;
-  }
-
   return (
-    <div className="navbar bg-black text-white">
-      {/* Navbar Start */}
-      <div className="flex items-center">
-        {/* Dropdown menu for sm and md */}
-        <div className="dropdown lg:hidden ml-4">
-          <div 
-            tabIndex={0} 
-            role="button" 
-            className="btn btn-ghost lg:hidden"
-            onClick={toggleNavMenu}
+    <header
+      className={`fixed top-0 left-0 z-50 w-full transition-all duration-300 ${
+        scrolled
+          ? 'border-b border-white/10 bg-[#0b0b0b]/90 backdrop-blur-md'
+          : 'border-b border-transparent bg-gradient-to-b from-black/70 to-transparent'
+      }`}
+    >
+      <nav className="mx-auto flex h-14 max-w-[1400px] items-center px-4 sm:px-8">
+        {/* ---- Izquierda: logo + links ---- */}
+        <div className="flex items-center gap-8">
+          {/* Toggle mobile */}
+          <button
+            onClick={() => setIsMobileOpen((v) => !v)}
+            className="text-white/90 transition hover:text-white lg:hidden"
+            aria-label="Menu"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h8m-8 6h16" />
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeWidth="1.8" d="M4 7h16M4 12h16M4 17h16" />
             </svg>
-          </div>
-          {isNavMenuOpen && (
-            <ul className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-black rounded-box w-52">
-              <li><a href="/">Home</a></li>
-              <li><a href="#">Movies</a></li>
-              <li><a href="#">Popular News</a></li>
-              {currentUser && <li><a href="/favorite">My List</a></li>}
-            </ul>
-          )}
-        </div>
+          </button>
 
-        {/* Logo */}
-        <a href="/" className="flex items-center">
-          <Image src={buzzflix} alt="Buzzflix logo" className="h-8 w-auto ml-4" />
-        </a>
+          {/* Logo */}
+          <a href="/" className="flex shrink-0 items-center">
+            <Image src={buzzflix} alt="Buzzflix" className="h-7 w-auto" priority />
+          </a>
 
-        <ul className="hidden lg:flex ml-8 space-x-6">
-          <li><a className="hover:text-gray-400" href="#">Popular Movies</a></li>
-          {currentUser && <li><a className="hover:text-gray-400" href="/favorite">My List</a></li>}
-        </ul>
-      </div>
-      {/* Navbar End */}
-      <div className="flex items-center gap-4 ml-auto mr-6">
-        {/* Search */}
-        <div className="relative">
-          {isSearchOpen || window.innerWidth >= 768 ? (
-            <input
-              type="text"
-              placeholder="Search movies"
-              value={searchTerm}
-              onChange={handleSearchChange}
-              onKeyDown={handleSearchSubmit}
-              className="input input-bordered w-full max-w-xs bg-[#141414] text-white placeholder-gray-500"
-            />
-          ) : (
-            <button onClick={toggleSearch} className="btn btn-ghost btn-circle">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </button>
-          )}
-        </div>
-        
-                {/* Profile or Sign In */}
-        <div className="dropdown dropdown-end">
-          {currentUser ? (
-            <div 
-              tabIndex={0} 
-              role="button" 
-              className="btn btn-ghost btn-circle avatar"
-              onClick={toggleProfileMenu}
-            >
-              <div className="w-8 rounded-full">
-                <Image
-                  alt="User avatar"
-                  src={buzzAvatar}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
-              </div>
-            </div>
-          ) : (
-            <a href="/login" className="btn bg-yellow-500 text-black">
-              Sign In
-            </a>
-          )}
-          {isProfileMenuOpen && currentUser && (
-            <ul
-              className="menu menu-sm dropdown-content bg-black text-white rounded-box z-[1] mt-3 w-48 p-2 shadow"
-            >
-              <li>
-                <a className="justify-between" href="/edit">
-                  Profile
+          {/* Links desktop */}
+          <ul className="hidden items-center gap-6 lg:flex">
+            {NAV_LINKS.map((link) => (
+              <li key={link.label}>
+                <a
+                  href={link.href}
+                  className="text-sm font-light tracking-wide text-white/70 transition-colors hover:text-white"
+                >
+                  {link.label}
                 </a>
               </li>
-              <li><a>Settings</a></li>
+            ))}
+            {currentUser && (
               <li>
-              <button 
-                  onClick={() => { 
-                    handleLogout(); 
-                    setIsProfileMenuOpen(false);
-                  }}
-                  className="w-full text-left"
+                <a
+                  href="/favorite"
+                  className="text-sm font-light tracking-wide text-white/70 transition-colors hover:text-white"
                 >
-                  Log Out
-                </button>
+                  My List
+                </a>
               </li>
-            </ul>
+            )}
+          </ul>
+        </div>
+
+        {/* ---- Derecha: búsqueda + perfil ---- */}
+        <div className="ml-auto flex items-center gap-4">
+          {/* Búsqueda expandible */}
+          <div className="flex items-center">
+            <div
+              className={`flex items-center overflow-hidden border-b transition-all duration-300 ${
+                isSearchOpen
+                  ? 'w-44 border-white/40 sm:w-56'
+                  : 'w-0 border-transparent'
+              }`}
+            >
+              <input
+                ref={searchRef}
+                type="text"
+                placeholder="Buscar trailers"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={submitSearch}
+                className="w-full bg-transparent px-2 py-1 text-sm text-white placeholder-white/40 focus:outline-none"
+              />
+            </div>
+            <button
+              onClick={() => setIsSearchOpen((v) => !v)}
+              className="p-1.5 text-white/80 transition hover:text-white"
+              aria-label="Buscar"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeWidth="1.8" d="M21 21l-5.2-5.2M17 10a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Perfil o Sign In */}
+          {isUserLoading ? (
+            <div className="h-8 w-8 animate-pulse rounded-full bg-white/10" />
+          ) : currentUser ? (
+            <div ref={profileRef} className="relative">
+              <button
+                onClick={() => setIsProfileOpen((v) => !v)}
+                className="flex items-center gap-1.5 outline-none"
+              >
+                <div className="h-8 w-8 overflow-hidden rounded-md ring-1 ring-white/20 transition hover:ring-white/50">
+                  <Image alt="avatar" src={buzzAvatar} width={32} height={32} />
+                </div>
+                <svg
+                  className={`h-3.5 w-3.5 text-white/70 transition-transform duration-200 ${
+                    isProfileOpen ? 'rotate-180' : ''
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeWidth="2" d="M6 9l6 6 6-6" />
+                </svg>
+              </button>
+
+              {isProfileOpen && (
+                <ul className="absolute right-0 mt-3 w-44 overflow-hidden rounded-md border border-white/10 bg-black/95 py-1 shadow-xl backdrop-blur-sm">
+                  <li>
+                    <a href="/edit" className="block px-4 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white">
+                      Perfil
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" className="block px-4 py-2 text-sm text-white/80 transition hover:bg-white/10 hover:text-white">
+                      Ajustes
+                    </a>
+                  </li>
+                  <li className="my-1 border-t border-white/10" />
+                  <li>
+                    <button
+                      onClick={() => {
+                        handleLogout();
+                        setIsProfileOpen(false);
+                      }}
+                      className="w-full px-4 py-2 text-left text-sm text-white/80 transition hover:bg-white/10 hover:text-white"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </li>
+                </ul>
+              )}
+            </div>
+          ) : (
+            <a
+              href="/login"
+              className="rounded bg-white px-4 py-1.5 text-sm font-medium text-black transition hover:bg-white/80"
+            >
+              Iniciar sesión
+            </a>
           )}
         </div>
-        </div>
-    </div>
+      </nav>
+
+      {/* ---- Menú mobile desplegable ---- */}
+      {isMobileOpen && (
+        <ul className="flex flex-col gap-1 border-t border-white/10 bg-black/95 px-6 py-4 lg:hidden">
+          {NAV_LINKS.map((link) => (
+            <li key={link.label}>
+              <a
+                href={link.href}
+                className="block py-2 text-sm font-light text-white/80 transition hover:text-white"
+                onClick={() => setIsMobileOpen(false)}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))}
+          {currentUser && (
+            <li>
+              <a
+                href="/favorite"
+                className="block py-2 text-sm font-light text-white/80 transition hover:text-white"
+                onClick={() => setIsMobileOpen(false)}
+              >
+                My List
+              </a>
+            </li>
+          )}
+        </ul>
+      )}
+    </header>
   );
 };
 

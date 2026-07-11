@@ -5,24 +5,19 @@ import {CarouselProps } from "@/config/intefaces";
 
 const DaisyCarousel: React.FC<CarouselProps> = ({ movies, title }) => {
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [cardWidth, setCardWidth] = useState(256); // Default width for larger screens
-  const [visibleCards, setVisibleCards] = useState(4); // Default number of visible cards
+  const [cardWidth, setCardWidth] = useState(180); // Default width for larger screens
 
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       if (width < 640) { // sm
-        setCardWidth(160);
-        setVisibleCards(2);
+        setCardWidth(130);
       } else if (width < 768) { // md
-        setCardWidth(192);
-        setVisibleCards(3);
+        setCardWidth(150);
       } else if (width < 1024) { // lg
-        setCardWidth(224);
-        setVisibleCards(4);
+        setCardWidth(165);
       } else { // xl and above
-        setCardWidth(256);
-        setVisibleCards(5);
+        setCardWidth(185);
       }
     };
 
@@ -31,25 +26,23 @@ const DaisyCarousel: React.FC<CarouselProps> = ({ movies, title }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const scrollLeft = () => {
+  const scrollByPage = (dir: number) => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: -cardWidth, behavior: "smooth" });
+      carouselRef.current.scrollBy({ left: dir * carouselRef.current.clientWidth * 0.85, behavior: "smooth" });
     }
   };
 
-  const scrollRight = () => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: cardWidth, behavior: "smooth" });
-    }
-  };
+  const scrollLeft = () => scrollByPage(-1);
+  const scrollRight = () => scrollByPage(1);
 
   return (
-    <div className="relative w-full my-5 p-3 bg-[]">
-      <h2 className="text-white text-xl sm:text-2xl font-semibold mb-2">{title}</h2>
+    <div className="relative w-full my-6 px-4 sm:px-8">
+      <h2 className="text-white text-lg sm:text-xl font-semibold mb-3">{title}</h2>
       <div className="flex items-center">
         <button
-          className="mr-2 bg-black text-white p-1 sm:p-2 rounded-full shadow-md"
+          className="mr-2 shrink-0 rounded-full bg-black/50 p-2 text-white/80 shadow-md transition hover:bg-black/80 hover:text-white"
           onClick={scrollLeft}
+          aria-label="Anterior"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -98,8 +91,9 @@ const DaisyCarousel: React.FC<CarouselProps> = ({ movies, title }) => {
           ))}
         </div>
         <button
-          className="ml-2 bg-black text-white p-1 sm:p-2 rounded-full shadow-md"
+          className="ml-2 shrink-0 rounded-full bg-black/50 p-2 text-white/80 shadow-md transition hover:bg-black/80 hover:text-white"
           onClick={scrollRight}
+          aria-label="Siguiente"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
