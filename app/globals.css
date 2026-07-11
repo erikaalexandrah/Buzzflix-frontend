@@ -47,3 +47,27 @@ body {
   to   { transform: translateX(-50%); }
 }
 .b-marquee { animation: b-marquee 22s linear infinite; }
+
+/* Barrido diagonal para skeletons brutalistas */
+.b-skeleton {
+  background-image: repeating-linear-gradient(
+    45deg,
+    #111111 0,
+    #111111 10px,
+    #FFE500 10px,
+    #FFE500 20px
+  );
+  background-size: 200% 200%;
+  animation: b-slide 1.1s linear infinite;
+}
+@keyframes b-slide {
+  from { background-position: 0 0; }
+  to   { background-position: -28.28px 0; } /* ~sqrt(2)*20px: una repetición completa */
+}
+
+/* Parpadeo de bloques (latido brutalista) */
+@keyframes b-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+.b-blink { animation: b-blink 1s steps(2, jump-none) infinite; }
