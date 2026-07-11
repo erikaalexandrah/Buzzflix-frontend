@@ -50,7 +50,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#141414] text-white">
+    <main className="min-h-screen overflow-x-hidden bg-paper text-ink">
       <Navbar />
       {featuredMovie && (
         <div className="md:mb-10">

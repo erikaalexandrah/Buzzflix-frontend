@@ -3,66 +3,41 @@ import Navbar from '@/components/navbar';
 import React from 'react';
 
 const EditProfile = () => {
+  const inputClass =
+    "b-border mb-4 w-full bg-paper px-4 py-3 text-base font-medium placeholder-ink/30 focus:bg-buzz focus:outline-none";
+
   return (
     <>
       <Navbar />
-      <div
-        className="relative w-full min-h-screen bg-cover bg-center flex items-center"
-        style={{
-          backgroundImage: `url('https://firebasestorage.googleapis.com/v0/b/powerleds-49579.appspot.com/o/buzzflix-edit-profile.jpg?alt=media&token=0c67d494-55f3-41b7-9e68-daf6b00eccce')`,
-          filter: 'brightness(60%)',
-        }}
-      >
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-        
+      <div className="flex min-h-screen flex-col md:flex-row">
         {/* Left Side - Info Section */}
-        <div className="relative z-10 flex flex-col justify-center h-full w-full md:w-1/2 p-10 text-white bg-black bg-opacity-50">
-          <div className="flex flex-col justify-center h-full min-h-screen">
-            <h2 className="text-5xl font-bold mb-6 ">Edit Your Profile</h2>
-            <p className="mb-4 text-lg ">
-              Customize your BuzzFlix experience by updating your profile information. This helps us
-              provide you with better trailer recommendations and a more personalized experience.
-            </p>
-            <p className="mb-4 text-lg ">
-              Remember, your privacy is important to us. We only use this information to enhance
-              your BuzzFlix experience and never share it with third parties.
-            </p>
-          </div>
+        <div className="flex w-full flex-col justify-center border-b-2 border-ink bg-electric px-6 py-12 text-paper md:w-1/2 md:border-b-0 md:border-r-2 md:p-16">
+          <a href="/" className="b-border mb-8 w-fit bg-buzz px-3 py-1.5 font-display text-xl uppercase tracking-tight text-ink shadow-brutal">
+            Buzzflix
+          </a>
+          <h2 className="b-display text-5xl md:text-7xl">Edita tu<br />perfil</h2>
+          <p className="mt-6 max-w-md text-base font-medium leading-relaxed text-paper/90 md:text-lg">
+            Personaliza tu experiencia. Usamos esta información para darte mejores recomendaciones
+            de trailers y nunca la compartimos con terceros.
+          </p>
         </div>
 
         {/* Right Side - Form Section */}
-        <div className="relative z-10 flex flex-col items-center justify-center h-full w-full md:w-1/2 p-10">
-          <div className="bg-white bg-opacity-20 backdrop-blur-sm p-10 rounded-lg shadow-lg max-w-lg w-full">
-            <h1 className="text-4xl font-bold mb-4 text-center text-white">Your Profile Details</h1>
+        <div className="flex w-full items-center justify-center bg-paper px-6 py-12 md:w-1/2 md:p-16">
+          <div className="b-card w-full max-w-md bg-paper p-7 md:p-9">
+            <h1 className="b-display mb-7 text-3xl md:text-4xl">Tus datos</h1>
             <form>
-              <input
-                type="text"
-                placeholder="Username"
-                className="w-full mb-4 px-4 py-2 text-lg rounded-md bg-white bg-opacity-50 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-yellow-600"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full mb-4 px-4 py-2 text-lg rounded-md bg-white bg-opacity-50 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-yellow-600"
-              />
-              <input
-                type="password"
-                placeholder="New Password"
-                className="w-full mb-6 px-4 py-2 text-lg rounded-md bg-white bg-opacity-50 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-yellow-600"
-              />
-              <select
-                multiple
-                className="w-full mb-4 px-4 py-2 text-lg rounded-md bg-white bg-opacity-50 text-white placeholder-white focus:outline-none focus:ring-2 focus:ring-yellow-600"
-              >
+              <input type="text" placeholder="Usuario" className={inputClass} />
+              <input type="email" placeholder="Email" className={inputClass} />
+              <input type="password" placeholder="Nueva contraseña" className={inputClass} />
+              <select multiple className={`${inputClass} h-32`}>
                 <option>Action</option>
                 <option>Comedy</option>
                 <option>Drama</option>
                 <option>Sci-Fi</option>
                 <option>Horror</option>
               </select>
-              <button className="w-full px-6 py-3 bg-yellow-500 hover:bg-yellow-700 text-white font-bold rounded-lg transition duration-300">
-                Save Changes
-              </button>
+              <button className="b-btn w-full bg-buzz text-base">Guardar cambios</button>
             </form>
           </div>
         </div>

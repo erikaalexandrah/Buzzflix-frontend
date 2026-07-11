@@ -5,23 +5,17 @@ import { TopCarouselProps } from "@/config/intefaces";
 
 const TopCarousel: React.FC<TopCarouselProps> = ({ movies, title }) => {
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [cardWidth, setCardWidth] = useState(185); // Default width for larger screens
+  const [cardWidth, setCardWidth] = useState(185);
 
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      if (width < 640) { // sm
-        setCardWidth(130);
-      } else if (width < 768) { // md
-        setCardWidth(150);
-      } else if (width < 1024) { // lg
-        setCardWidth(165);
-      } else { // xl and above
-        setCardWidth(185);
-      }
+      if (width < 640) setCardWidth(140);
+      else if (width < 768) setCardWidth(155);
+      else if (width < 1024) setCardWidth(170);
+      else setCardWidth(190);
     };
-
-    handleResize(); // Call once to set initial size
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -32,100 +26,61 @@ const TopCarousel: React.FC<TopCarouselProps> = ({ movies, title }) => {
     }
   };
 
-  const scrollLeft = () => scrollByPage(-1);
-  const scrollRight = () => scrollByPage(1);
-
   return (
-    <div className="relative w-full my-6 px-4 sm:px-8">
-      <h2 className="text-white text-lg sm:text-xl font-semibold mb-3">{title}</h2>
-      <div className="flex items-center">
-        <button
-          className="mr-2 shrink-0 rounded-full bg-black/50 p-2 text-white/80 shadow-md transition hover:bg-black/80 hover:text-white"
-          onClick={scrollLeft}
-          aria-label="Anterior"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 sm:h-6 sm:w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M15 19l-7-7 7-7"
-            />
-          </svg>
-        </button>
+    <div className="border-y-2 border-ink bg-buzz">
+      <div className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6">
+        {/* Cabecera */}
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <h2 className="b-display inline-block bg-ink px-3 py-1.5 text-lg text-buzz sm:text-xl">
+            {title}
+          </h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => scrollByPage(-1)}
+              className="b-border flex h-9 w-9 items-center justify-center bg-paper shadow-brutal-sm transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              aria-label="Anterior"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button
+              onClick={() => scrollByPage(1)}
+              className="b-border flex h-9 w-9 items-center justify-center bg-paper shadow-brutal-sm transition hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none"
+              aria-label="Siguiente"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Pista */}
         <div
           ref={carouselRef}
-          className="flex space-x-8 sm:space-x-14 overflow-x-scroll scroll-smooth scrollbar-hide"
-          style={{ 
-            scrollSnapType: 'x mandatory',
-            overflowY: 'hidden', // Oculta el scroll vertical
-            whiteSpace: 'nowrap',  // Asegura que las tarjetas se alineen horizontalmente
-            WebkitOverflowScrolling: 'touch', // Para una experiencia de scroll suave en dispositivos móviles
-            msOverflowStyle: 'none',  // Oculta scrollbar en IE y Edge
-            scrollbarWidth: 'none'  // Oculta scrollbar en Firefox
-          }}
+          className="flex gap-6 overflow-x-scroll scroll-smooth scrollbar-hide px-1 py-3"
+          style={{ scrollSnapType: 'x mandatory' }}
         >
-          {movies.slice(0, 9).map((movie, index) => ( 
-            <div 
-              key={index} 
-              className="flex-shrink-0 relative"
-              style={{ 
-                width: `${cardWidth}px`,
-                scrollSnapAlign: 'start'
-              }}
+          {movies.slice(0, 9).map((movie, index) => (
+            <div
+              key={index}
+              className="flex flex-shrink-0 items-end"
+              style={{ scrollSnapAlign: 'start' }}
             >
-              {/* Superimpose the number */}
-              <div 
-                className="absolute  md:top-[-10%] lg:top-[-23%] left-[-35%] lg:left-[-45%] text-white font-bold text-[8rem] md:text-[12rem] lg:text-[16rem] opacity-20"
-                style={{ zIndex: 1 }}  
+              {/* Numeral display gigante */}
+              <span
+                className="b-display mr-[-14px] select-none text-[7rem] leading-none text-paper sm:text-[9rem]"
+                style={{ WebkitTextStroke: '3px #111111' }}
               >
                 {index + 1}
-              </div>
-              <div style={{ zIndex: 2 }}> 
-                <Card
-                  id={movie.id}
-                  cover={movie.cover}
-                  title={movie.title}
-                  trailerUrl={movie.trailerUrl}
-                  description={movie.description}
-                  originalLanguage={movie.originalLanguage}
-                  actors={movie.actors}
-                  releaseDate={movie.releaseDate}
-                  subtitles={movie.subtitles}
-                  rating={movie.rating}
-                  classification={movie.classification}
-                  genre={movie.genre}
-                />
+              </span>
+              <div style={{ width: `${cardWidth}px` }}>
+                <Card {...movie} />
               </div>
             </div>
           ))}
         </div>
-        <button
-          className="ml-2 shrink-0 rounded-full bg-black/50 p-2 text-white/80 shadow-md transition hover:bg-black/80 hover:text-white"
-          onClick={scrollRight}
-          aria-label="Siguiente"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-4 w-4 sm:h-6 sm:w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M9 5l7 7-7 7"
-            />
-          </svg>
-        </button>
       </div>
     </div>
   );

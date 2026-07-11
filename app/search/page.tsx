@@ -42,8 +42,12 @@ const Search: React.FC = () => {
 
   const renderMovieGrid = (movieList: Movie[], title: string) => (
     <div className="mt-8 mb-12">
-      {title && <h2 className="text-white text-lg sm:text-xl font-semibold mb-5">{title}</h2>}
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 sm:gap-4">
+      {title && (
+        <h2 className="b-display mb-6 inline-block bg-ink px-3 py-1.5 text-lg text-paper sm:text-xl">
+          {title}
+        </h2>
+      )}
+      <div className="grid grid-cols-2 gap-4 px-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-5">
         {movieList.map((movie) => (
           <Card
             key={movie.id}
@@ -66,22 +70,22 @@ const Search: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#141414]">
+    <div className="flex flex-col min-h-screen bg-paper text-ink">
       <Navbar />
-      <main className="flex-grow max-w-[1400px] w-full mx-auto px-4 sm:px-8 pt-24 pb-12">
-        <p className="text-sm text-white/50">Resultados de búsqueda</p>
-        <h1 className="text-white text-2xl sm:text-3xl font-bold mb-2">
+      <main className="flex-grow max-w-[1400px] w-full mx-auto px-4 sm:px-6 pt-10 pb-12">
+        <span className="b-tag bg-grape text-paper">Búsqueda</span>
+        <h1 className="b-display mt-3 text-4xl sm:text-6xl break-words">
           &ldquo;{query}&rdquo;
         </h1>
 
         {loading && (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-2 border-white/20 border-t-white"></div>
+            <div className="h-12 w-12 animate-spin border-4 border-ink border-t-buzz"></div>
           </div>
         )}
 
         {error && (
-          <div className="mt-8 rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-center text-red-300">
+          <div className="b-card mt-8 bg-coral p-4 text-center font-bold uppercase text-paper">
             {error}
           </div>
         )}
@@ -91,9 +95,9 @@ const Search: React.FC = () => {
             {movies.length > 0 ? (
               renderMovieGrid(movies, "")
             ) : (
-              <div className="mt-16 text-center text-white/60">
-                <p className="text-lg sm:text-xl">No encontramos coincidencias</p>
-                <p className="mt-2 text-sm text-white/40">Prueba con otro título o actor.</p>
+              <div className="b-card mt-10 bg-buzz p-10 text-center">
+                <p className="b-display text-2xl sm:text-3xl">Sin coincidencias</p>
+                <p className="mt-2 text-sm font-bold uppercase">Prueba con otro título o actor.</p>
               </div>
             )}
 

@@ -72,63 +72,67 @@ const CardView: React.FC<CardViewProps> = ({
   return (
     <>
       <div
-        className="group relative z-20 aspect-[2/3] w-full cursor-pointer overflow-hidden rounded-md shadow-md ring-1 ring-white/5 transition-transform duration-300 hover:z-30 hover:scale-[1.04] hover:shadow-xl"
+        className="group relative cursor-pointer border-2 border-ink bg-paper shadow-brutal transition-all duration-100 hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-brutal-lg"
         onClick={openModal}
       >
-        <img
-          src={cover}
-          alt={title}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 flex items-end justify-center bg-gradient-to-t from-black/80 via-black/10 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-          <h3 className="text-center text-sm font-semibold text-white md:text-base">{title}</h3>
+        <div className="relative aspect-[2/3] w-full overflow-hidden bg-ink">
+          <img src={cover} alt={title} className="absolute inset-0 h-full w-full object-cover" />
+          {/* Rating flotante */}
+          <span className="b-tag absolute left-2 top-2 bg-buzz">{`★ ${rating}`}</span>
+        </div>
+        <div className="flex items-center justify-between gap-2 border-t-2 border-ink px-2.5 py-2">
+          <h3 className="truncate text-xs font-bold uppercase tracking-tight">{title}</h3>
+          <span className="text-xs font-bold text-grape transition group-hover:translate-x-0.5">▶</span>
         </div>
       </div>
 
       {isModalOpen && (
         <Modal onClose={closeModal}>
-          <div className="relative">
-            <div className="relative aspect-video w-full overflow-hidden bg-black">
-              {React.createElement('lite-youtube', {
-                videoid: videoId,
-                style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
-                className: 'w-full h-full object-cover',
-                title: title,
-                params: 'autoplay=1&loop=1&controls=1&rel=0&modestbranding=1&mute=0',
-                autoload: true,
-                playlistCoverId: 'default',
-                ref: youtubeRef,
-              })}
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#181818] to-transparent"></div>
+          <div className="relative aspect-video w-full overflow-hidden border-b-2 border-ink bg-ink">
+            {React.createElement('lite-youtube', {
+              videoid: videoId,
+              style: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
+              className: 'w-full h-full object-cover',
+              title: title,
+              params: 'autoplay=1&loop=1&controls=1&rel=0&modestbranding=1&mute=0',
+              autoload: true,
+              playlistCoverId: 'default',
+              ref: youtubeRef,
+            })}
+          </div>
+
+          <div className="p-5 sm:p-7">
+            <h2 className="b-display text-3xl sm:text-4xl">{title}</h2>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="b-tag bg-grape text-paper">98% Match</span>
+              <span className="b-tag bg-paper">{classification}</span>
+              <span className="b-tag bg-electric text-paper">{releaseDate.split('-')[0]}</span>
+              <span className="b-tag bg-buzz">{`★ ${rating}`}</span>
             </div>
-            <div className="p-5 sm:p-8">
-              <h2 className="mb-3 text-2xl sm:text-3xl font-bold text-white">{title}</h2>
-              <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
-                <span className="font-semibold text-green-500">98% Match</span>
-                <span className="border border-gray-600 px-2 py-0.5 text-xs text-white/90">{classification}</span>
-                <span className="text-white/70">{releaseDate.split('-')[0]}</span>
-              </div>
-              <p className="mb-5 text-sm sm:text-base leading-relaxed text-white/85">{description}</p>
-              <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
-                <button className="flex items-center justify-center gap-2 rounded-md bg-white px-8 py-2 font-semibold text-black transition hover:bg-white/85" onClick={handlePlayVideo}>
-                  <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                  Play
+
+            <p className="mt-5 text-sm font-medium leading-relaxed text-ink/85 sm:text-base">{description}</p>
+
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <button className="b-btn bg-buzz" onClick={handlePlayVideo}>
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                Play
+              </button>
+              {isAuthenticated && (
+                <button
+                  onClick={handleToggleFavorite}
+                  className={`b-btn ${isInList ? 'bg-coral text-paper' : 'bg-paper'}`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? '...' : (isInList ? '– Quitar de mi lista' : '+ Añadir a mi lista')}
                 </button>
-                {isAuthenticated && (
-                  <button
-                    onClick={handleToggleFavorite}
-                    className="rounded-md bg-white/15 px-8 py-2 font-semibold text-white transition hover:bg-white/25 disabled:opacity-60"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? 'Loading...' : (isInList ? 'Remove from My List' : 'Add to My List')}
-                  </button>
-                )}
-              </div>
-              <div className="space-y-1.5 border-t border-white/10 pt-4 text-xs sm:text-sm text-gray-400">
-                <p><span className="text-gray-200">Cast:</span> {actors.join(', ')}</p>
-                <p><span className="text-gray-200">Genres:</span> {genre}</p>
-                <p><span className="text-gray-200">This title is:</span> {subtitles}</p>
-              </div>
+              )}
+            </div>
+
+            <div className="mt-6 space-y-1.5 border-t-2 border-ink pt-4 text-xs font-medium text-ink/70 sm:text-sm">
+              <p><span className="font-bold uppercase text-ink">Reparto:</span> {actors.join(', ')}</p>
+              <p><span className="font-bold uppercase text-ink">Género:</span> {genre}</p>
+              <p><span className="font-bold uppercase text-ink">Subtítulos:</span> {subtitles}</p>
             </div>
           </div>
         </Modal>

@@ -3,5 +3,47 @@
 @tailwind utilities;
 
 body {
-  background-color: black;
+  background-color: #F3EEE3; /* paper */
+  color: #111111;            /* ink */
 }
+
+@layer components {
+  /* Borde brutalista base */
+  .b-border {
+    @apply border-2 border-ink;
+  }
+
+  /* Botón brutalista: bloque de color con borde y sombra dura que "presiona" al hover */
+  .b-btn {
+    @apply inline-flex items-center justify-center gap-2 border-2 border-ink px-5 py-2.5
+           font-bold uppercase tracking-tight shadow-brutal transition-all duration-100
+           hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-brutal-sm
+           active:translate-x-[6px] active:translate-y-[6px] active:shadow-none;
+  }
+
+  /* Tarjeta / panel brutalista */
+  .b-card {
+    @apply border-2 border-ink bg-paper shadow-brutal;
+  }
+
+  /* Etiqueta / chip */
+  .b-tag {
+    @apply inline-block border-2 border-ink px-2 py-0.5 text-xs font-bold uppercase tracking-wide;
+  }
+
+  /* Título display */
+  .b-display {
+    @apply font-display uppercase leading-[0.92] tracking-tight;
+  }
+}
+
+/* Oculta scrollbars en carruseles */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Marquee para tira de titulares */
+@keyframes b-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.b-marquee { animation: b-marquee 22s linear infinite; }

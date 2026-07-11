@@ -27,40 +27,38 @@ const FavoritesPage: React.FC = () => {
     fetchFavoriteMovies();
   }, []);
 
-  if (loading) {
-    return <p className="text-center text-white">Loading...</p>;
-  }
-
-  if (error) {
-    return <p className="text-center text-red-500">{error}</p>;
-  }
-
   return (
     <>
       <Navbar/>
-      <div className="min-h-screen text-white">
-        {/* Renderizado de las tarjetas */}
-        <section className="p-8">
-          <h2 className="text-2xl font-bold mb-4">Your Favorite Movies & Shows</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {movies.map((movie) => (
-              <Card
-                key={movie.id}
-                id={movie.id}
-                cover={movie.cover}
-                title={movie.title}
-                trailerUrl={movie.trailerUrl}
-                description={movie.description}
-                originalLanguage={movie.originalLanguage}
-                actors={movie.actors}
-                releaseDate={movie.releaseDate}
-                subtitles={movie.subtitles}
-                rating={movie.rating}
-                classification={movie.classification}
-                genre={movie.genre}
-              />
-            ))}
-          </div>
+      <div className="min-h-screen bg-paper text-ink">
+        <section className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
+          <span className="b-tag bg-grape text-paper">Mi lista</span>
+          <h1 className="b-display mt-3 mb-8 text-4xl sm:text-6xl">Mis favoritos</h1>
+
+          {loading && (
+            <div className="flex justify-center py-20">
+              <div className="h-12 w-12 animate-spin border-4 border-ink border-t-buzz"></div>
+            </div>
+          )}
+
+          {error && (
+            <div className="b-card bg-coral p-4 text-center font-bold uppercase text-paper">{error}</div>
+          )}
+
+          {!loading && !error && (
+            movies.length > 0 ? (
+              <div className="grid grid-cols-2 gap-4 px-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 sm:gap-5">
+                {movies.map((movie) => (
+                  <Card key={movie.id} {...movie} />
+                ))}
+              </div>
+            ) : (
+              <div className="b-card bg-buzz p-10 text-center">
+                <p className="b-display text-2xl sm:text-3xl">Tu lista está vacía</p>
+                <p className="mt-2 text-sm font-bold uppercase">Añade trailers desde el catálogo.</p>
+              </div>
+            )
+          )}
         </section>
       </div>
       <Footer />
