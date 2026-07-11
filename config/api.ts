@@ -112,22 +112,28 @@ export const backfillMovies = async (token: string | null, pages = 10): Promise<
   );
 };
 
-export const getLatestMovies = async (): Promise<Movie[]> => {
+const LANDING_MOVIES_LIMIT = 20;
+
+export const getLatestMovies = async (signal?: AbortSignal): Promise<Movie[]> => {
   try {
-    const response = await axios.get<Movie[]>(`${API_URL}/movie/latest`);
-    return response.data;
+    const response = await axios.get<Movie[]>(`${API_URL}/movie/latest`, {
+      params: { limit: LANDING_MOVIES_LIMIT },
+      signal,
+    });
+    return response.data.slice(0, LANDING_MOVIES_LIMIT);
   } catch (error) {
     console.error('Error fetching latest movies:', error);
     throw error;
   }
 };
 
-export const getMoviesByGenre = async (genre: string): Promise<Movie[]> => {
+export const getMoviesByGenre = async (genre: string, signal?: AbortSignal): Promise<Movie[]> => {
   try {
     const response = await axios.get<Movie[]>(`${API_URL}/movie/by-genre`, {
-      params: { genre },
+      params: { genre, limit: LANDING_MOVIES_LIMIT },
+      signal,
     });
-    return response.data;
+    return response.data.slice(0, LANDING_MOVIES_LIMIT);
   } catch (error) {
     console.error(`Error fetching movies by genre: ${genre}`, error);
     throw error;
