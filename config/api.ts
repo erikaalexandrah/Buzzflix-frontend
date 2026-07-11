@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Movie, ApiResponseIsFavorite, FormDataSignIn, FormDataLogIn } from './intefaces';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const NORMALIZED_API_URL = API_URL?.replace(/\/+$/, '');
 
 export const checkIfInList = async (movieId: string, token: string | null): Promise<ApiResponseIsFavorite | null> => {
   if (!token) return null;
@@ -113,6 +114,29 @@ export const backfillMovies = async (token: string | null, pages = 10): Promise<
 };
 
 const LANDING_MOVIES_LIMIT = 20;
+
+export interface LandingResponse {
+  latest: Movie[];
+  genres: Array<{
+    name: string;
+    movies: Movie[];
+  }>;
+}
+
+export const getLandingMovies = async (
+  genres: string[],
+  signal?: AbortSignal
+): Promise<LandingResponse> => {
+  const response = await axios.get<LandingResponse>(`${NORMALIZED_API_URL}/movie/landing`, {
+    params: {
+      genres: genres.join(','),
+      limit: LANDING_MOVIES_LIMIT,
+    },
+    signal,
+  });
+
+  return response.data;
+};
 
 export const getLatestMovies = async (signal?: AbortSignal): Promise<Movie[]> => {
   try {

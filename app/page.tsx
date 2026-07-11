@@ -9,13 +9,12 @@ import LazyLoader from "@/components/lazyLoader/page";
 import CarouselSkeleton from "@/components/skeleton/carouselSkeleton";
 import HeroSkeleton from "@/components/skeleton/heroSkeleton";
 import { Movie } from "@/config/intefaces";
-import { getLatestMovies, getMoviesByGenre } from "@/config/api";
+import { getLandingMovies } from "@/config/api";
 import { getFeaturedMovie } from "@/config/featured";
 import { genres } from "@/config/data";
 
 // Acentos que rotan en las cabeceras de los skeletons para dar ritmo visual.
 const SKELETON_ACCENTS = ["bg-grape", "bg-coral", "bg-electric", "bg-ink", "bg-bubble"];
-const GENRE_BATCH_SIZE = 3;
 
 type GenreStatus = "loading" | "loaded" | "error";
 
@@ -40,60 +39,35 @@ export default function Home() {
       .finally(() => setFeaturedLoading(false));
 
     const loadLandingCarousels = async () => {
-      // Prioritize the first carousel before putting the genre requests in flight.
-      try {
-        const latest = await getLatestMovies(controller.signal);
-        setLatestMovies(latest);
-      } catch (error) {
-        if (!controller.signal.aborted) console.error("Error fetching latest movies:", error);
-      } finally {
-        if (!controller.signal.aborted) setLatestLoading(false);
-      }
-
-      if (controller.signal.aborted) return;
-
       setGenreStatuses(
-        genres.reduce((statuses, genre) => {
-          statuses[genre] = "loading";
-          return statuses;
-        }, {} as Record<string, GenreStatus>)
+        Object.fromEntries(genres.map((genre) => [genre, "loading" as const]))
       );
 
-      // Fetch small batches in visual order. Requests for sections near the top
-      // are sent first, and a batch is revealed together so a lower carousel
-      // cannot win the race and appear before the ones above it.
-      for (let index = 0; index < genres.length; index += GENRE_BATCH_SIZE) {
+      try {
+        const landing = await getLandingMovies(genres, controller.signal);
+
         if (controller.signal.aborted) return;
 
-        const batch = genres.slice(index, index + GENRE_BATCH_SIZE);
-        const results = await Promise.allSettled(
-          batch.map((genre) => getMoviesByGenre(genre, controller.signal))
+        setLatestMovies(landing.latest);
+        setMoviesByGenre(
+          Object.fromEntries(
+            landing.genres.map(({ name, movies }) => [name, movies])
+          )
         );
-
-        if (controller.signal.aborted) return;
-
-        setMoviesByGenre((current) => {
-          const next = { ...current };
-          results.forEach((result, resultIndex) => {
-            if (result.status === "fulfilled") {
-              next[batch[resultIndex]] = result.value;
-            }
-          });
-          return next;
-        });
-
-        setGenreStatuses((current) => {
-          const next = { ...current };
-          results.forEach((result, resultIndex) => {
-            const genre = batch[resultIndex];
-            next[genre] = result.status === "fulfilled" ? "loaded" : "error";
-
-            if (result.status === "rejected") {
-              console.error(`Error fetching movies by genre: ${genre}`, result.reason);
-            }
-          });
-          return next;
-        });
+        setGenreStatuses(
+          Object.fromEntries(
+            landing.genres.map(({ name }) => [name, "loaded" as const])
+          )
+        );
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          console.error("Error fetching landing movies:", error);
+          setGenreStatuses(
+            Object.fromEntries(genres.map((genre) => [genre, "error" as const]))
+          );
+        }
+      } finally {
+        if (!controller.signal.aborted) setLatestLoading(false);
       }
     };
 
