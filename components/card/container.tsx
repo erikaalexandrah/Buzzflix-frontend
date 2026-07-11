@@ -1,7 +1,7 @@
 // src/components/card/container.tsx
 
 'use client';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import { checkIfInList, toggleFavorite } from '@/config/api';
 import { Movie } from '@/config/intefaces';
 import CardView from './view';
@@ -23,31 +23,29 @@ const Card: React.FC<Movie> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isInList, setIsInList] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [favoriteChecked, setFavoriteChecked] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
-  const checkAuthentication = useCallback(() => {
+  // El estado de favorito solo importa dentro del modal: se carga de forma
+  // diferida al abrirlo, evitando cientos de peticiones al montar la landing.
+  const openModal = () => {
+    setIsModalOpen(true);
+
     const token = localStorage.getItem('jwt');
     setIsAuthenticated(!!token);
-    return !!token;
-  }, []);
+    if (!token || favoriteChecked) return;
 
-  useEffect(() => {
-    const fetchIfInList = async () => {
-      const token = localStorage.getItem('jwt');
-      const response = await checkIfInList(id, token);
-      setIsInList(response?.isFavorite ?? false);
-      setIsLoading(false);
-    };
-
-    if (checkAuthentication()) {
-      fetchIfInList();
-    } else {
-      setIsLoading(false);
-    }
-  }, [id, checkAuthentication]);
+    setIsLoading(true);
+    checkIfInList(id, token)
+      .then((response) => {
+        setIsInList(response?.isFavorite ?? false);
+        setFavoriteChecked(true);
+      })
+      .catch((error) => console.error('Error checking favorite:', error))
+      .finally(() => setIsLoading(false));
+  };
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
