@@ -1,24 +1,10 @@
 'use client'
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef } from "react";
 import Card from "../card/container";
 import { TopCarouselProps } from "@/config/intefaces";
 
 const TopCarousel: React.FC<TopCarouselProps> = ({ movies, title }) => {
   const carouselRef = useRef<HTMLDivElement>(null);
-  const [cardWidth, setCardWidth] = useState(185);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < 640) setCardWidth(140);
-      else if (width < 768) setCardWidth(155);
-      else if (width < 1024) setCardWidth(170);
-      else setCardWidth(190);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const scrollByPage = (dir: number) => {
     if (carouselRef.current) {
@@ -59,7 +45,7 @@ const TopCarousel: React.FC<TopCarouselProps> = ({ movies, title }) => {
         {/* Pista */}
         <div
           ref={carouselRef}
-          className="flex gap-6 overflow-x-scroll scroll-smooth scrollbar-hide px-1 py-3"
+          className="flex gap-4 overflow-x-auto scroll-smooth scrollbar-hide px-1 pb-4 pt-2 sm:gap-6"
           style={{ scrollSnapType: 'x mandatory' }}
         >
           {movies.slice(0, 9).map((movie, index) => (
@@ -70,12 +56,12 @@ const TopCarousel: React.FC<TopCarouselProps> = ({ movies, title }) => {
             >
               {/* Numeral display gigante */}
               <span
-                className="b-display mr-[-14px] select-none text-[7rem] leading-none text-paper sm:text-[9rem]"
+                className="b-display mr-[-12px] select-none text-[6rem] leading-none text-paper sm:mr-[-14px] sm:text-[8rem] lg:text-[9rem]"
                 style={{ WebkitTextStroke: '3px #111111' }}
               >
                 {index + 1}
               </span>
-              <div style={{ width: `${cardWidth}px` }}>
+              <div className="w-[clamp(158px,42vw,210px)] sm:w-[180px] md:w-[195px] lg:w-[210px]">
                 <Card {...movie} />
               </div>
             </div>

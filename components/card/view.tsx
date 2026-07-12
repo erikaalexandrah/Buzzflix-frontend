@@ -71,20 +71,31 @@ const CardView: React.FC<CardViewProps> = ({
 
   return (
     <>
-      <div
-        className="group relative cursor-pointer border-2 border-ink bg-paper shadow-brutal transition-all duration-100 hover:-translate-x-[3px] hover:-translate-y-[3px] hover:shadow-brutal-lg"
+      <button
+        type="button"
+        className="group relative block w-full cursor-pointer overflow-hidden border-2 border-ink bg-paper text-left shadow-brutal transition-all duration-150 hover:-translate-y-1 hover:shadow-brutal-lg focus-visible:-translate-y-1 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-grape active:translate-x-1 active:translate-y-1 active:shadow-none"
         onClick={openModal}
+        aria-label={`Ver detalles de ${title}`}
       >
         <div className="relative aspect-[2/3] w-full overflow-hidden bg-ink">
-          <img src={cover} alt={title} className="absolute inset-0 h-full w-full object-cover" />
-          {/* Rating flotante */}
-          <span className="b-tag absolute left-2 top-2 bg-buzz">{`★ ${rating}`}</span>
+          <img
+            src={cover}
+            alt={`Portada de ${title}`}
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-[1.04] group-focus-visible:scale-[1.04]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-transparent to-transparent opacity-70 transition group-hover:opacity-90" />
+          <span className="b-tag absolute left-2.5 top-2.5 bg-buzz text-[10px] sm:text-xs">{`★ ${rating}`}</span>
+          <span className="absolute bottom-3 right-3 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full border-2 border-ink bg-buzz text-sm opacity-0 shadow-brutal-sm transition-all group-hover:translate-y-0 group-hover:opacity-100 group-focus-visible:translate-y-0 group-focus-visible:opacity-100 sm:h-11 sm:w-11">▶</span>
         </div>
-        <div className="flex items-center justify-between gap-2 border-t-2 border-ink px-2.5 py-2">
-          <h3 className="truncate text-xs font-bold uppercase tracking-tight">{title}</h3>
-          <span className="text-xs font-bold text-grape transition group-hover:translate-x-0.5">▶</span>
+        <div className="min-h-[68px] border-t-2 border-ink px-3 py-2.5 sm:min-h-[74px] sm:px-3.5">
+          <h3 className="line-clamp-2 text-sm font-extrabold uppercase leading-tight tracking-tight sm:text-[15px]">{title}</h3>
+          <div className="mt-1.5 flex items-center gap-2 text-[10px] font-bold uppercase tracking-wide text-ink/60 sm:text-xs">
+            {releaseDate && <span>{releaseDate.split('-')[0]}</span>}
+            {classification && <span className="truncate border-l border-ink/30 pl-2">{classification}</span>}
+          </div>
         </div>
-      </div>
+      </button>
 
       {isModalOpen && (
         <Modal onClose={closeModal}>

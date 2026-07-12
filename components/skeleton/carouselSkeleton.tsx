@@ -3,8 +3,7 @@ import React from 'react';
 /** Una tarjeta placeholder brutalista con borde, sombra y latido. */
 const CardSkeleton: React.FC<{ delay?: number }> = ({ delay = 0 }) => (
   <div
-    className="flex-shrink-0 border-2 border-ink bg-paper shadow-brutal"
-    style={{ width: 'var(--card-w, 190px)' }}
+    className="w-[clamp(158px,42vw,210px)] flex-shrink-0 border-2 border-ink bg-paper shadow-brutal sm:w-[180px] md:w-[195px] lg:w-[210px]"
   >
     <div className="relative aspect-[2/3] w-full overflow-hidden bg-ink/10">
       {/* Barrido diagonal animado */}
@@ -35,7 +34,6 @@ const CarouselSkeleton: React.FC<CarouselSkeletonProps> = ({
   return (
     <div
       className="mx-auto w-full max-w-[1400px] px-4 py-6 sm:px-6"
-      style={{ ['--card-w' as string]: '190px' }}
     >
       {/* Cabecera */}
       <div className="mb-4 flex items-end justify-between gap-4">

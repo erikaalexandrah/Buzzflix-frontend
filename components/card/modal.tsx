@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
 
 interface ModalProps {
@@ -7,14 +7,32 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose();
+    };
+    const previousOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
+
   return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 p-4"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-ink/80 p-0 backdrop-blur-sm sm:items-center sm:p-5"
       onClick={onClose}
+      role="presentation"
     >
       <div
-        className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto border-2 border-ink bg-paper shadow-brutal-lg scrollbar-hide"
+        className="relative max-h-[94dvh] w-full max-w-3xl overflow-y-auto border-x-2 border-t-2 border-ink bg-paper shadow-brutal-lg scrollbar-hide sm:max-h-[90vh] sm:border-2"
         onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
       >
         <button
           onClick={onClose}
