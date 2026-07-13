@@ -151,6 +151,13 @@ const VoteCountBackfill: React.FC = () => {
               <button onClick={closePanel} className="b-border h-10 w-10 shrink-0 bg-coral text-xl font-bold text-paper" aria-label="Cerrar">×</button>
             </div>
 
+            <div className="mt-5 border-2 border-ink bg-electric/10 p-4">
+              <p className="font-extrabold">¿Qué hace esta herramienta?</p>
+              <p className="mt-1 text-sm font-medium leading-relaxed text-ink/75">
+                Añade a las películas existentes la cantidad de votos de TMDB para mejorar la selección de la landing. No elimina ni cambia películas.
+              </p>
+            </div>
+
             {status ? (
               <div className="mt-6">
                 <p className="text-lg font-extrabold">{status.completed} / {status.total} películas actualizadas</p>
@@ -176,18 +183,34 @@ const VoteCountBackfill: React.FC = () => {
 
             {error && <p className="mt-5 border-2 border-ink bg-coral p-3 text-sm font-bold text-paper">{error}</p>}
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <button onClick={runBatch} disabled={loading || !status || status.complete} className="b-btn bg-buzz disabled:cursor-not-allowed disabled:opacity-50">
-                Actualizar siguiente lote
-              </button>
-              {completing ? (
-                <button onClick={cancel} className="b-btn bg-coral text-paper">Cancelar actualización</button>
-              ) : (
-                <button onClick={completeBackfill} disabled={loading || !status || status.complete} className="b-btn bg-grape text-paper disabled:cursor-not-allowed disabled:opacity-50">
-                  Completar actualización
-                </button>
-              )}
-            </div>
+            {completing ? (
+              <div className="mt-6 border-2 border-ink bg-buzz/40 p-4">
+                <p className="font-extrabold">Actualizando todas las películas…</p>
+                <p className="mt-1 text-sm text-ink/70">Puedes cancelar cuando quieras. El progreso guardado no se perderá.</p>
+                <button onClick={cancel} className="b-btn mt-4 w-full bg-coral text-paper">Detener actualización</button>
+              </div>
+            ) : (
+              <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="flex flex-col border-2 border-ink bg-grape/10 p-3">
+                  <span className="b-tag mb-3 self-start bg-grape text-paper">Recomendado</span>
+                  <p className="mb-3 flex-1 text-sm font-medium text-ink/70">
+                    Procesa automáticamente todo lo pendiente, un lote después de otro.
+                  </p>
+                  <button onClick={completeBackfill} disabled={loading || !status || status.complete} className="b-btn w-full bg-grape text-paper disabled:cursor-not-allowed disabled:opacity-50">
+                    Actualizar todas
+                  </button>
+                </div>
+                <div className="flex flex-col border-2 border-ink bg-paper p-3">
+                  <span className="b-tag mb-3 self-start bg-paper">Prueba manual</span>
+                  <p className="mb-3 flex-1 text-sm font-medium text-ink/70">
+                    Procesa solo 50 películas. Úsalo si quieres probar antes de continuar.
+                  </p>
+                  <button onClick={runBatch} disabled={loading || !status || status.complete} className="b-btn w-full bg-buzz disabled:cursor-not-allowed disabled:opacity-50">
+                    Procesar solo 50
+                  </button>
+                </div>
+              </div>
+            )}
             {status?.complete && <p className="mt-5 b-tag bg-buzz">Actualización completada</p>}
           </section>
         </div>
