@@ -4,6 +4,7 @@ import Image from 'next/image';
 import buzzAvatar from '../public/buzz.png';
 import { useUserData } from '../context/userContext';
 import BackfillButton from './admin/backfillButton';
+import VoteCountBackfill from './admin/voteCountBackfill';
 
 const NAV_LINKS = [
   { label: 'Home', href: '/' },
@@ -92,8 +93,11 @@ const Navbar = () => {
         {/* Derecha */}
         <div className="ml-auto flex items-center gap-3">
           {/* Importar (solo admin) */}
-          <div className="hidden sm:block">
-            <BackfillButton />
+          <div className="hidden lg:block">
+            <div className="flex gap-2">
+              <VoteCountBackfill />
+              <BackfillButton />
+            </div>
           </div>
 
           {/* Búsqueda */}
@@ -174,7 +178,10 @@ const Navbar = () => {
       {isMobileOpen && (
         <ul className="flex flex-col border-t-2 border-ink bg-paper lg:hidden">
           <li className="border-b-2 border-ink p-3 empty:hidden">
-            <BackfillButton />
+            <div className="flex flex-wrap gap-3">
+              <VoteCountBackfill />
+              <BackfillButton />
+            </div>
           </li>
           {NAV_LINKS.map((link) => (
             <li key={link.label}>

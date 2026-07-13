@@ -9,6 +9,7 @@ export interface Movie {
     releaseDate: string;
     subtitles: string;
     rating: number;
+    voteCount?: number;
     classification: string;
     genre: string;
   }

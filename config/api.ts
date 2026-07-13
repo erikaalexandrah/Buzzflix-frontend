@@ -113,6 +113,83 @@ export const backfillMovies = async (token: string | null, pages = 10): Promise<
   );
 };
 
+export interface VoteCountStatus {
+  total: number;
+  completed: number;
+  remaining: number;
+  percentage: number;
+  complete: boolean;
+}
+
+export interface VoteCountBackfillResponse extends VoteCountStatus {
+  processed: number;
+  updated: number;
+  failed: number;
+  failures: Array<{
+    id: string | number;
+    error: string;
+  }>;
+}
+
+const getAdminHeaders = (token: string | null) => {
+  if (!token) throw new BackfillError(401, 'Token inválido o ausente');
+  return { Authorization: `Bearer ${token}` };
+};
+
+const throwVoteCountError = (error: unknown): never => {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status ?? 0;
+    throw new BackfillError(
+      status,
+      status === 401
+        ? 'Token inválido o ausente'
+        : status === 403
+        ? 'El usuario no es administrador'
+        : status === 0
+        ? 'No se pudo conectar con el servidor'
+        : `Error al actualizar votaciones (${status})`
+    );
+  }
+  throw error;
+};
+
+export const getVoteCountBackfillStatus = async (
+  token: string | null,
+  signal?: AbortSignal
+): Promise<VoteCountStatus> => {
+  try {
+    const response = await axios.get<VoteCountStatus>(
+      `${NORMALIZED_API_URL}/import/admin/movies/vote-counts/status`,
+      { headers: getAdminHeaders(token), signal }
+    );
+    return response.data;
+  } catch (error) {
+    return throwVoteCountError(error);
+  }
+};
+
+export const backfillVoteCounts = async (
+  token: string | null,
+  batchSize = 50,
+  signal?: AbortSignal
+): Promise<VoteCountBackfillResponse> => {
+  try {
+    const safeBatchSize = Math.min(Math.max(1, Math.trunc(batchSize)), 100);
+    const response = await axios.post<VoteCountBackfillResponse>(
+      `${NORMALIZED_API_URL}/import/admin/movies/vote-counts/backfill`,
+      null,
+      {
+        params: { batchSize: safeBatchSize },
+        headers: getAdminHeaders(token),
+        signal,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    return throwVoteCountError(error);
+  }
+};
+
 const LANDING_MOVIES_LIMIT = 20;
 
 export interface LandingResponse {
