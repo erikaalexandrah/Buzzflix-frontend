@@ -17,6 +17,8 @@ export interface Movie {
   export interface CarouselProps {
     movies: Movie[];
     title: string;
+    // "suggestion" son carruseles personalizados; se estilizan distinto.
+    variant?: "genre" | "suggestion";
   }
   
   export interface TopCarouselProps {

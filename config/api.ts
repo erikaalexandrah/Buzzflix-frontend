@@ -192,23 +192,32 @@ export const backfillVoteCounts = async (
 
 const LANDING_MOVIES_LIMIT = 20;
 
+export type LandingRailType = 'genre' | 'suggestion';
+
+export interface LandingRail {
+  name: string;
+  type: LandingRailType;
+  movies: Movie[];
+}
+
 export interface LandingResponse {
   latest: Movie[];
-  genres: Array<{
-    name: string;
-    movies: Movie[];
-  }>;
+  genres: LandingRail[];
 }
 
 export const getLandingMovies = async (
   genres: string[],
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  token?: string | null
 ): Promise<LandingResponse> => {
   const response = await axios.get<LandingResponse>(`${NORMALIZED_API_URL}/movie/landing`, {
     params: {
       genres: genres.join(','),
       limit: LANDING_MOVIES_LIMIT,
     },
+    // Autenticación opcional: con sesión activa el back devuelve carruseles
+    // personalizados; sin token responde el landing genérico sin fallar.
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
     signal,
   });
 

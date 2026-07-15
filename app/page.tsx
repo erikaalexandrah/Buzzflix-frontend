@@ -9,23 +9,23 @@ import LazyLoader from "@/components/lazyLoader/page";
 import CarouselSkeleton from "@/components/skeleton/carouselSkeleton";
 import HeroSkeleton from "@/components/skeleton/heroSkeleton";
 import { Movie } from "@/config/intefaces";
-import { getLandingMovies } from "@/config/api";
+import { getLandingMovies, LandingRail } from "@/config/api";
 import { getFeaturedMovie } from "@/config/featured";
 import { genres } from "@/config/data";
 
 // Acentos que rotan en las cabeceras de los skeletons para dar ritmo visual.
 const SKELETON_ACCENTS = ["bg-grape", "bg-coral", "bg-electric", "bg-ink", "bg-bubble"];
 
-type GenreStatus = "loading" | "loaded" | "error";
+type RailsStatus = "loading" | "loaded" | "error";
 
 export default function Home() {
   const [latestMovies, setLatestMovies] = useState<Movie[]>([]);
   const [featuredMovie, setFeaturedMovie] = useState<Movie | null>(null);
-  const [moviesByGenre, setMoviesByGenre] = useState<{ [key: string]: Movie[] }>({});
+  // Rails en el orden exacto que devuelve el back (géneros y sugerencias intercalados).
+  const [rails, setRails] = useState<LandingRail[]>([]);
 
   const [featuredLoading, setFeaturedLoading] = useState(true);
-  const [latestLoading, setLatestLoading] = useState(true);
-  const [genreStatuses, setGenreStatuses] = useState<Record<string, GenreStatus>>({});
+  const [railsStatus, setRailsStatus] = useState<RailsStatus>("loading");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -39,35 +39,24 @@ export default function Home() {
       .finally(() => setFeaturedLoading(false));
 
     const loadLandingCarousels = async () => {
-      setGenreStatuses(
-        Object.fromEntries(genres.map((genre) => [genre, "loading" as const]))
-      );
+      setRailsStatus("loading");
 
       try {
-        const landing = await getLandingMovies(genres, controller.signal);
+        // Autenticación opcional: si hay sesión activa mandamos el Bearer para
+        // recibir carruseles personalizados; si no, cae al landing genérico.
+        const token = localStorage.getItem("jwt");
+        const landing = await getLandingMovies(genres, controller.signal, token);
 
         if (controller.signal.aborted) return;
 
         setLatestMovies(landing.latest);
-        setMoviesByGenre(
-          Object.fromEntries(
-            landing.genres.map(({ name, movies }) => [name, movies])
-          )
-        );
-        setGenreStatuses(
-          Object.fromEntries(
-            landing.genres.map(({ name }) => [name, "loaded" as const])
-          )
-        );
+        setRails(landing.genres);
+        setRailsStatus("loaded");
       } catch (error) {
         if (!controller.signal.aborted) {
           console.error("Error fetching landing movies:", error);
-          setGenreStatuses(
-            Object.fromEntries(genres.map((genre) => [genre, "error" as const]))
-          );
+          setRailsStatus("error");
         }
-      } finally {
-        if (!controller.signal.aborted) setLatestLoading(false);
       }
     };
 
@@ -94,33 +83,34 @@ export default function Home() {
       {/* Top: últimas películas */}
       {latestMovies.length > 0 ? (
         <TopCarousel title="Últimas películas" movies={latestMovies} />
-      ) : latestLoading ? (
+      ) : railsStatus === "loading" ? (
         <CarouselSkeleton accent="bg-coral" titleWidth={200} />
       ) : null}
 
-      {/* Géneros */}
-      {genres.map((genre, index) => {
-        const status = genreStatuses[genre];
-
-        if (!status || status === "loading") {
-          return (
+      {/* Rails: géneros y sugerencias en el orden recibido del back */}
+      {railsStatus === "loading"
+        ? genres.map((genre, index) => (
             <CarouselSkeleton
               key={genre}
               accent={SKELETON_ACCENTS[index % SKELETON_ACCENTS.length]}
               titleWidth={260}
             />
-          );
-        }
-
-        return moviesByGenre[genre]?.length > 0 ? (
-          <LazyLoader key={genre}>
-            <DaisyCarousel
-              title={`Lo último en el género ${genre}`}
-              movies={moviesByGenre[genre]}
-            />
-          </LazyLoader>
-        ) : null;
-      })}
+          ))
+        : rails.map((rail, index) =>
+            rail.movies.length > 0 ? (
+              <LazyLoader key={`${rail.type}-${rail.name}-${index}`}>
+                <DaisyCarousel
+                  title={
+                    rail.type === "suggestion"
+                      ? rail.name
+                      : `Lo último en el género ${rail.name}`
+                  }
+                  movies={rail.movies}
+                  variant={rail.type}
+                />
+              </LazyLoader>
+            ) : null
+          )}
 
       <Footer />
     </main>
