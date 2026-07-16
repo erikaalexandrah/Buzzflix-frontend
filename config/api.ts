@@ -282,6 +282,26 @@ export const registerUser = async (formData: FormDataSignIn) => {
     }
   };
 
+  export interface UserProfile {
+    username: string;
+    age?: number;
+    country?: string;
+    favoriteGenre?: string;
+    role?: string;
+  }
+
+  export const getUserProfile = async (
+    token: string | null,
+    signal?: AbortSignal
+  ): Promise<UserProfile> => {
+    if (!token) throw new Error('No authentication token provided');
+    const response = await axios.get<UserProfile>(`${NORMALIZED_API_URL}/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal,
+    });
+    return response.data;
+  };
+
   export const getFavoriteMovies = async (token: string | null): Promise<Movie[]> => {
     try {
       const response = await axios.get<Movie[]>(`${API_URL}/movie/favorites`, {

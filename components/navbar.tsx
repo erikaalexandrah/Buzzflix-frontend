@@ -148,8 +148,8 @@ const Navbar = () => {
                     </a>
                   </li>
                   <li>
-                    <a href="#" className="block border-b-2 border-ink px-4 py-2.5 text-sm font-bold uppercase transition hover:bg-buzz">
-                      Ajustes
+                    <a href="/favorite" className="block border-b-2 border-ink px-4 py-2.5 text-sm font-bold uppercase transition hover:bg-buzz">
+                      Mis favoritos
                     </a>
                   </li>
                   <li>

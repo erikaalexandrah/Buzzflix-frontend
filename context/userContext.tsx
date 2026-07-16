@@ -1,10 +1,10 @@
 "use client";
 
 interface User {
-    id: string;
     username: string;
-    userCountry: string;
-    userFavoriteGenre: string;
+    age?: number;
+    country?: string;
+    favoriteGenre?: string;
     role?: string;
   }
   
@@ -20,6 +20,8 @@ interface User {
 
 import React, { createContext, useState, useEffect, useContext } from "react";
 import axios from "axios";
+
+const NORMALIZED_API_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, "");
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -63,15 +65,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsUserLoading(true);
       setRole(getRoleFromToken(token)); // Read role straight from the JWT
       axios
-        .get("http://localhost:3000/auth/me", {
+        .get(`${NORMALIZED_API_URL}/auth/me`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((response) => {
           setCurrentUser(response.data);
           if (response.data?.role) setRole(response.data.role);
         })
-        .catch(() => {
-          handleLogout(); // Clear the token if the request fails
+        .catch((error) => {
+          // Solo cerrar sesión si el token es realmente inválido/expirado (401).
+          // Un fallo de red transitorio NO debe desloguear al usuario: antes,
+          // cualquier error aquí borraba el JWT (ej. al navegar a favoritos).
+          if (axios.isAxiosError(error) && error.response?.status === 401) {
+            handleLogout();
+          }
         })
         .finally(() => {
           setIsUserLoading(false);

@@ -18,7 +18,7 @@ const FavoritesPage: React.FC = () => {
         const favoriteMovies = await getFavoriteMovies(token);  // Usa la función
         setMovies(favoriteMovies);
       } catch (err) {
-        setError('Failed to fetch favorite movies');
+        setError('No pudimos cargar tus favoritos');
       } finally {
         setLoading(false);
       }
